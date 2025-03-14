@@ -14,6 +14,7 @@ public:
     void loadModules(const std::vector<std::string>& modules) {
         for (const auto& module : modules) {
             std::string path = "../lib/lib" + module + ".so";
+            std::cout << "Loading module: " << path << std::endl;
             std::unique_ptr<void, decltype(&dlclose)> handle(dlopen(path.c_str(), RTLD_LAZY), dlclose);
             if (!handle) {
                 std::cerr << "Failed to load " << module << ": " << dlerror() << std::endl;

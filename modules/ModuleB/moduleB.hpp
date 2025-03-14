@@ -1,4 +1,4 @@
-#include "../../Utils/Module/ModuleBase.hpp"
+#include "Module/ModuleBase.hpp"
 #include <iostream>
 
 namespace CHAT::Module {
@@ -9,7 +9,4 @@ public:
     void init() override;
     std::string name() const override;
 };
-}
-extern "C" CHAT::Utils::Module::ModuleBase* createModule() {
-    return new CHAT::Module::ModuleB();
 }
