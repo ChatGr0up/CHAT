@@ -9,3 +9,6 @@ std::string ModuleB::name() const{
     return "ModuleB";
 }
 }
+extern "C" CHAT::Utils::Module::ModuleBase* createModule() {
+    return new CHAT::Module::ModuleB();
+}
