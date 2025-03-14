@@ -9,6 +9,7 @@ CTestTestfile.cmake
 # Dependency directories
 /dependencies/
 *.cmake
+!cmake/*
 
 # IDE or editor files
 .idea/
