@@ -4,5 +4,5 @@ project(CHAT)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(main)
-add_subdirectory(modules/ModuleA)
-add_subdirectory(modules/ModuleB)
+add_subdirectory(modules)
+add_subdirectory(Utils)

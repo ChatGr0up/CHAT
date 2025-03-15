@@ -4,11 +4,11 @@ function(add_module MODULE_NAME)
     set(multiValueArgs DEPENDS)
     cmake_parse_arguments(MODULE "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    # 输出调试信息
-    message(STATUS "Searching for source files in ${CMAKE_SOURCE_DIR}/modules/${MODULE_NAME}")
+    # 输出调试信息，显示当前目录路径
+    message(STATUS "Searching for source files in ${CMAKE_CURRENT_LIST_DIR}/")
 
     # 获取当前模块目录下的所有 .cpp 文件
-    file(GLOB MODULE_SOURCES ${CMAKE_SOURCE_DIR}/modules/${MODULE_NAME}/*.cpp)
+    file(GLOB MODULE_SOURCES ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
 
     message(STATUS "Found source files for ${MODULE_NAME}: ${MODULE_SOURCES}")
 
@@ -20,7 +20,7 @@ function(add_module MODULE_NAME)
     add_library(${MODULE_NAME} SHARED ${MODULE_SOURCES})
 
     # 设置目标的包含目录
-    target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/modules/${MODULE_NAME})
+    target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/${MODULE_NAME})
 
     # 设置输出目录
     set_target_properties(${MODULE_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
