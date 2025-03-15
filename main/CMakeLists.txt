@@ -3,4 +3,4 @@ include_directories(${CMAKE_SOURCE_DIR}/Utils)
 
 add_executable(main main.cpp)
 
-target_link_libraries(main dl Module)
+target_link_libraries(main dl Module JsonUtils nlohmann_json)

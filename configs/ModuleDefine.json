@@ -1,6 +1,6 @@
 {
     "modules": [
-        "moduleA",
-        "moduleB"
+        "ModuleA",
+        "ModuleB"
     ]
 }

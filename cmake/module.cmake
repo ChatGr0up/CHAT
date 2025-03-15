@@ -1,7 +1,7 @@
 function(add_module MODULE_NAME)
     set(options "")
     set(oneValueArgs "")
-    set(multiValueArgs DEPENDS)
+    set(multiValueArgs DEPENDS LIBS)
     cmake_parse_arguments(MODULE "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     # 输出调试信息，显示当前目录路径
@@ -20,7 +20,7 @@ function(add_module MODULE_NAME)
     add_library(${MODULE_NAME} SHARED ${MODULE_SOURCES})
 
     # 设置目标的包含目录
-    target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/${MODULE_NAME})
+    target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
     # 设置输出目录
     set_target_properties(${MODULE_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -31,6 +31,14 @@ function(add_module MODULE_NAME)
             message(STATUS "Module ${MODULE_NAME} depends on ${DEP}")
             add_dependencies(${MODULE_NAME} ${DEP})
             target_link_libraries(${MODULE_NAME} PRIVATE ${DEP})
+        endforeach()
+    endif()
+
+    # 处理外部库依赖
+    if (MODULE_LIBS)
+        foreach(LIB ${MODULE_LIBS})
+            message(STATUS "Module ${MODULE_NAME} links to external library: ${LIB}")
+            target_link_libraries(${MODULE_NAME} PRIVATE ${LIB})
         endforeach()
     endif()
 endfunction()
