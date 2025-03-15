@@ -11,13 +11,26 @@ DEPS_FILE="$CHAT_ROOT/configs/dependencies.txt"
 # 确保依赖目录存在
 mkdir -p "$DEPEND_DIR"
 
+# 0. 确保必要的工具已安装
+echo "Checking required tools..."
+if ! command -v zip &>/dev/null || ! command -v unzip &>/dev/null || ! command -v tar &>/dev/null; then
+    echo "Installing required tools..."
+    sudo apt-get update && sudo apt-get install -y curl zip unzip tar
+else
+    echo "All required tools are already installed."
+fi
+
 # 1. 检查 vcpkg 是否安装
 if [ ! -d "$VCPKG_DIR" ]; then
     echo "Installing vcpkg..."
     git clone git@github.com:microsoft/vcpkg.git "$VCPKG_DIR"
     "$VCPKG_DIR/bootstrap-vcpkg.sh"
 else 
-    echo "vcpkg already installed."    
+    echo "vcpkg already installed." 
+    if [ ! -f "$VCPKG_DIR/vcpkg" ]; then
+        echo "Bootstrapping vcpkg..."
+        "$VCPKG_DIR/bootstrap-vcpkg.sh"
+    fi   
 fi
 
 # 2. 读取 dependencies.txt 并安装依赖
