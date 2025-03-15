@@ -1,8 +1,1 @@
-编译方法：
-mkdir build 
-
-cd build
-
-cmake ..
-
-make
+1、编译方法：./build.sh
