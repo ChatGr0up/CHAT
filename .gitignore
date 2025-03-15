@@ -8,6 +8,7 @@ CTestTestfile.cmake
 
 # Dependency directories
 /dependencies/
+/depend
 *.cmake
 !cmake/*
 
