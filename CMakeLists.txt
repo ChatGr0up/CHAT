@@ -12,7 +12,6 @@ set(CMAKE_CXX_STANDARD 17)
 list(APPEND CMAKE_PREFIX_PATH "${VCPKG_DIR}/installed/x64-linux/share")
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 
-
 # 查找外部依赖,所有的外部依赖都需要现在这里添加，然后才在具体使用它的模块的地方添加
 find_package(nlohmann_json CONFIG REQUIRED)
 
