@@ -5,7 +5,6 @@
 #include <dlfcn.h>
 #include "JsonUtils/JsonUtils.hpp"
 
-
 int main() {
     CHAT::Utils::Module::ModuleLoader loader;
     CHAT::Utils::Json::JsonUtils jsonUtils;
