@@ -7,7 +7,6 @@ set(CMAKE_TOOLCHAIN_FILE "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" CACHE S
 message(STATUS "CMAKE_TOOLCHAIN_FILE PATH IS: ${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
-
 # 添加 vcpkg 路径到 CMAKE_PREFIX_PATH
 list(APPEND CMAKE_PREFIX_PATH "${VCPKG_DIR}/installed/x64-linux/share")
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
