@@ -1,9 +1,12 @@
 #pragma once
 #include <string>
-#include <nlohmann/json.hpp>
+#include "jsoncpp/json/json.h"
 
 namespace CHAT::Utils::Json {
-using JsonValue = nlohmann::json;    
+using JsonValue = ::Json::Value;
+using CharReaderBuilder = ::Json::CharReaderBuilder;
+using StreamWriter = ::Json::StreamWriter;
+using StreamWriterBuilder = ::Json::StreamWriterBuilder;    
 class JsonUtils {
 public:
     // 从文件加载 JSON

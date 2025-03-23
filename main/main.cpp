@@ -3,7 +3,9 @@
 #include <vector>
 #include <memory>
 #include <dlfcn.h>
+#include <filesystem>
 #include "JsonUtils/JsonUtils.hpp"
+#include "FileUtils/fileSystem.hpp"
 
 int main() {
     CHAT::Utils::Module::ModuleLoader loader;
@@ -12,10 +14,10 @@ int main() {
     std::string moduleConfigPath = (execPath / "../../configs/ModuleDefine.json").string();
     CHAT::Utils::Json::JsonValue jsonValue = jsonUtils.loadFromFile(moduleConfigPath);
     std::vector<std::string> modules;
-    if (jsonValue.contains("modules") && jsonValue["modules"].is_array()) {
+    if (jsonValue.isMember("modules") && jsonValue["modules"].isArray()) {
         for (const auto& module : jsonValue["modules"]) {
-            if (module.is_string()) {
-                modules.push_back(module.get<std::string>());
+            if (module.isString()) {
+                modules.push_back(module.asString());
             } else {
                 std::cerr << "Module name must be string" << std::endl;
             }
@@ -23,6 +25,6 @@ int main() {
     } else {
         std::cerr << "ModuleDefine.json must contains modules array" << std::endl;
     }
-    loader.loadModules(modules);  // 需要加载的模块
+    loader.loadModules(modules);
     return 0;
 }
