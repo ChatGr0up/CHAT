@@ -7,7 +7,7 @@
 namespace CHAT::Utils::DataBaseManager {
 DBManager::DBManager(const std::string& appName) : m_appName(appName)
 {
-    std::string configFilePath = "/code/CHAT/configs/DataBaseConfig.json";
+    std::string configFilePath = "../../configs/DataBaseConfig.json";
     Utils::Json::JsonValue config = Utils::Json::JsonUtils::loadFromFile(configFilePath);
     const char* host = config["server"]["host"].asCString();
     int port = config["server"]["port"].asInt();
