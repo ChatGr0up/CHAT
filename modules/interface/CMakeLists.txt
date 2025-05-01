@@ -1,0 +1,2 @@
+add_subdirectory(ModuleAItf)
+add_subdirectory(ModuleBItf)

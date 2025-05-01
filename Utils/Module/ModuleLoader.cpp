@@ -1,6 +1,11 @@
 #include "ModuleLoader.hpp"
-
 namespace CHAT::Utils::Module {
+ModuleLoader& ModuleLoader::getInstance()
+{
+    static ModuleLoader instance;
+    return instance;
+}
+
 void ModuleLoader::loadModules(const std::vector<std::string>& modules) {
     for (const auto& module : modules) {
         std::string path = "../lib/lib" + module + ".so";
@@ -21,7 +26,6 @@ void ModuleLoader::loadModules(const std::vector<std::string>& modules) {
 
         std::unique_ptr<ModuleBase, ModuleDeleter> moduleInstance(createModule());
         moduleInstance->init();  
-
         handles.emplace_back(std::move(handle));
         instances.emplace_back(std::move(moduleInstance));
     }

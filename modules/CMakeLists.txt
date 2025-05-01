@@ -1,2 +1,2 @@
-add_subdirectory(ModuleA)
-add_subdirectory(ModuleB)
+add_subdirectory(interface)
+add_subdirectory(src)

@@ -1,3 +1,4 @@
+#include "ModuleAItf/ModuleAItf.hpp"
 #include "Module/ModuleBase.hpp"
 #include <iostream>
 #include <memory>
@@ -5,7 +6,7 @@
 #include "DataBaseManager/DBManager.hpp"
 
 namespace CHAT::Module {
-class ModuleA : public CHAT::Utils::Module::ModuleBase {
+class ModuleA : public CHAT::Module::ModuleAItf {
 public:
     ModuleA() = default;
     ~ModuleA() = default;
