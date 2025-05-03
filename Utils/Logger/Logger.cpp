@@ -10,12 +10,14 @@
 namespace CHAT::Utils::Log {
 
 // 初始化日志配置
-std::string Logger::logDirectory = "logs";
+std::string Logger::logDirectory = std::string(std::getenv("HOME")) + "/logs";
 std::string Logger::archiveDirectory = "archives";
 size_t Logger::maxLogSize = 10485760;  // 默认10MB
 std::ofstream Logger::logFile;
 size_t Logger::currentLogSize = 0;
 std::mutex Logger::logMutex;  // 初始化互斥锁
+LogLevel Logger::minLogLevel = LogLevel::INFO;
+bool Logger::isArchiving = false;
 
 // 初始化配置文件
 void Logger::initLogConfig(const std::string& configFilePath) {
@@ -52,12 +54,12 @@ void Logger::initLogConfig(const std::string& configFilePath) {
 }
 
 // 获取当前时间的辅助函数
-std::string Logger::getCurrentTime() {
+std::string getCurrentTime() {
     using namespace std::chrono;
     auto now = system_clock::now();
     auto time = system_clock::to_time_t(now);
     std::ostringstream oss;
-    oss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
+    oss << std::put_time(std::localtime(&time), "%Y-%m-%d_%H-%M-%S");
     return oss.str();
 }
 
@@ -80,26 +82,36 @@ void Logger::writeLogToFile(const std::string& logMessage) {
         archiveLogFile();
     }
 
-    logFile << logMessage << std::endl;
+    logFile << logMessage << '\n';
+    logFile.flush();
     currentLogSize += logMessage.size();
 }
 
 // 文件归档（线程安全）
 void Logger::archiveLogFile() {
-    std::lock_guard<std::mutex> lock(logMutex);
+    {
+        std::lock_guard<std::mutex> lock(logMutex);
+        if (isArchiving) return;
+        isArchiving = true;
+    }
 
     std::string archiveFilePath = archiveDirectory + "/log_" + getCurrentTime() + ".txt";
-    logFile.close();  // 关闭当前日志文件
+    {
+        std::lock_guard<std::mutex> lock(logMutex);
+        logFile.close();  // 关闭当前日志文件
 
-    // 重命名并归档
-    std::filesystem::rename(logDirectory + "/log.txt", archiveFilePath);
+        // 重命名并归档
+        std::filesystem::rename(logDirectory + "/log.txt", archiveFilePath);
 
-    // 重新打开日志文件
-    logFile.open(logDirectory + "/log.txt", std::ios::out | std::ios::trunc);
-    if (!logFile.is_open()) {
-        throw std::runtime_error("Failed to reopen log file after archiving.");
+        // 重新打开日志文件
+        logFile.open(logDirectory + "/log.txt", std::ios::out | std::ios::trunc);
+        if (!logFile.is_open()) {
+            isArchiving = false;
+            throw std::runtime_error("Failed to reopen log file after archiving.");
+        }
+        currentLogSize = 0;  // 重置当前文件大小
+        isArchiving = false;
     }
-    currentLogSize = 0;  // 重置当前文件大小
 }
 
 void Logger::log(LogLevel level, const std::string& moduleName, const std::string& message) {

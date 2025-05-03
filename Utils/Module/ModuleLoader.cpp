@@ -1,4 +1,5 @@
 #include "ModuleLoader.hpp"
+#include "EnvManager/EnvManager.hpp"
 namespace CHAT::Utils::Module {
 ModuleLoader& ModuleLoader::getInstance()
 {
@@ -7,8 +8,9 @@ ModuleLoader& ModuleLoader::getInstance()
 }
 
 void ModuleLoader::loadModules(const std::vector<std::string>& modules) {
+    std::string libPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getLibPath();
     for (const auto& module : modules) {
-        std::string path = "../lib/lib" + module + ".so";
+        std::string path = libPath + "/lib" + module + ".so";
         std::cout << "Loading module: " << path << std::endl;
         const char* pathCStr = path.c_str();
         std::unique_ptr<void, decltype(&dlclose)> handle(dlopen(pathCStr, RTLD_LAZY), dlclose);

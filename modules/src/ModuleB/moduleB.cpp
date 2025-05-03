@@ -2,11 +2,14 @@
 #include "ModuleAItf/ModuleAItf.hpp"
 #include "Module/ModuleUtils.hpp"
 
+// using CHAT::Utils::Log::LogLevel;
+
 namespace CHAT::Module {
 void ModuleB::init() {
     std::cout << "ModuleB::init()" << std::endl;
     CHAT::Module::ModuleAItf& moduleA = CHAT::Utils::Module::getModuleRef<CHAT::Module::ModuleAItf>();
     moduleA.init();
+    // MODULEB_TRACE("test the logger!");
 }
 
 std::string ModuleB::name() const{

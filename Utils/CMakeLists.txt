@@ -1,3 +1,5 @@
 add_subdirectory(Module)
 add_subdirectory(JsonUtils)
 add_subdirectory(DataBaseManager)
+add_subdirectory(Thread)
+add_subdirectory(EnvManager)

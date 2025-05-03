@@ -10,6 +10,7 @@
 #include <csignal>
 #include <atomic>
 #include "FileUtils/fileSystem.hpp"
+#include "EnvManager/EnvManager.hpp"
 
 std::condition_variable chat_root_cv;
 std::mutex char_root_mtx;;
@@ -24,7 +25,8 @@ void signalHandler(int signum) {
 int main() {
     std::cout << "initializing the full process!" << std::endl;
     CHAT::Utils::Json::JsonUtils jsonUtils;
-    std::string moduleConfigPath = ("../../configs/ModuleDefine.json");
+    std::string configRootPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getGlobalConfigPath();
+    std::string moduleConfigPath = configRootPath + "/ModuleDefine.json";
     CHAT::Utils::Json::JsonValue jsonValue = jsonUtils.loadFromFile(moduleConfigPath);
     std::vector<std::string> modules;
     if (jsonValue.isMember("modules") && jsonValue["modules"].isArray()) {
