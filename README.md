@@ -5,7 +5,7 @@
 
 # 2、如何运行chat的cpp微服务
 
-1、执行build目录中的main
+1、执行根目录的run.sh
 
 # 3、chat的cpp微服务依赖
 

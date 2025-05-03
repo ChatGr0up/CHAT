@@ -34,7 +34,7 @@ private:
 
     std::string getCurrentTime();
 
-    void initLogConfig(const std::string& configFilePath);
+    void initLogConfig();
 
     static const std::string logLevelToString(LogLevel level);
 
@@ -50,7 +50,6 @@ private:
     size_t m_currentLogSize;
     std::vector<std::string> m_logCache;
     std::mutex m_logMutex;
-    LogLevel m_minLogLevel;
     bool m_isArchiving;
 };
 }

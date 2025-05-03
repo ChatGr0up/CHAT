@@ -31,4 +31,12 @@ std::string EnvManager::getLibPath()
     }
     return envStr;
 }
+std::string EnvManager::getLogPath()
+{
+    std::string envStr(std::getenv("LOG_DIR"));
+    if (envStr.empty()) {
+        std::cerr << "fatal error!" << std::endl;
+    }
+    return envStr;
+}
 }

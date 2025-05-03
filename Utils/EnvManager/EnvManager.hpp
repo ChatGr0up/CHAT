@@ -16,6 +16,8 @@ public:
     std::string getGlobalConfigPath();
 
     std::string getLibPath();
+
+    std::string getLogPath();
     
 private:
     EnvManager() = default;

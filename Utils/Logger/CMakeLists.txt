@@ -1,3 +1,5 @@
 include(${CMAKE_SOURCE_DIR}/cmake/module.cmake)
 
-# add_module(Logger)
+include_directories(${CMAKE_SOURCE_DIR}/Utils)
+
+add_module(Logger DEPENDS EnvManager JsonUtils FileUtils)

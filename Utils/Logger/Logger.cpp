@@ -6,44 +6,28 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
-
+#include "EnvManager/EnvManager.hpp"
+#include "JsonUtils/JsonUtils.hpp"
+#include "FileUtils/fileSystem.hpp"
 namespace CHAT::Utils::Log {
+Logger::Logger()
+{
+    initLogConfig();
+}
 
-// 初始化日志配置
-std::string Logger::logDirectory = std::string(std::getenv("HOME")) + "/logs";
-std::string Logger::archiveDirectory = "archives";
-size_t Logger::maxLogSize = 10485760;  // 默认10MB
-std::ofstream Logger::logFile;
-size_t Logger::currentLogSize = 0;
-std::mutex Logger::logMutex;  // 初始化互斥锁
-LogLevel Logger::minLogLevel = LogLevel::INFO;
-bool Logger::isArchiving = false;
-
-// 初始化配置文件
-void Logger::initLogConfig(const std::string& configFilePath) {
-    std::ifstream configFile(configFilePath);
-    if (!configFile.is_open()) {
-        throw std::runtime_error("Failed to open log configuration file.");
-    }
-
-    std::string line;
-    while (std::getline(configFile, line)) {
-        if (line.find("log_directory=") == 0) {
-            logDirectory = line.substr(14);
-        } else if (line.find("log_max_size=") == 0) {
-            maxLogSize = std::stoul(line.substr(13));
-        } else if (line.find("archive_directory=") == 0) {
-            archiveDirectory = line.substr(18);
-        }
-    }
-
-    // 创建日志目录和归档目录
-    std::filesystem::create_directories(logDirectory);
-    std::filesystem::create_directories(archiveDirectory);
-
-    // 打开日志文件
-    std::string logFilePath = logDirectory + "/log.txt";
-    logFile.open(logFilePath, std::ios::app);
+void Logger::initLogConfig() 
+{
+    std::string configFilePath = CHAT::Utils::EnvManager::EnvManager::getInstance().getGlobalConfigPath() + 
+        "/LoggerConfig.json";
+    CHAT::Utils::Json::JsonUtils jsonUtils;
+    CHAT::Utils::Json::JsonValue jsonValue = jsonUtils.loadFromFile(configFilePath);
+    
+    m_logDirectory = jsonValue.get("log_directory", "logs").asString();
+    m_archiveDirectory = jsonValue.get("archive_directory", "logs/archives").asString();
+    m_maxLogSize = jsonValue.get("log_max_size", 10485760).asInt();
+    std::string logFilePath = m_logDirectory + "/log.trace";
+    CHAT::Utils::FileUtils::fileSystem::createDirectory(logFilePath);
+    // logFile.open(logFilePath, std::ios::app);
     if (!logFile.is_open()) {
         throw std::runtime_error("Failed to open log file.");
     }
@@ -54,7 +38,7 @@ void Logger::initLogConfig(const std::string& configFilePath) {
 }
 
 // 获取当前时间的辅助函数
-std::string getCurrentTime() {
+std::string Logger::getCurrentTime() {
     using namespace std::chrono;
     auto now = system_clock::now();
     auto time = system_clock::to_time_t(now);
