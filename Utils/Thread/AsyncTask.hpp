@@ -17,6 +17,8 @@ public:
 
 protected:
     virtual uint32_t loopInterval(); // 指定循环间隙
+    
+    virtual uint32_t loopDelayTime(); // 指定循环延迟
 
     virtual bool svc(); // 给出具体定时任务，返回true则永久循环
     

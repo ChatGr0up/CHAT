@@ -11,6 +11,8 @@ public:
 
     static bool isDirectoryExists(const std::string& dirPath);
 
+    static bool renameFile(const std::string& srcFile, const std::string& dstFile);
+
 private:
     static bool isPathCorrect(const std::string& dirPath);
 };

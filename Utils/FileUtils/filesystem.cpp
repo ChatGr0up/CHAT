@@ -59,6 +59,19 @@ bool fileSystem::isDirectoryExists(const std::string& dirPath)
     }
 }
 
+bool fileSystem::renameFile(const std::string &srcFile, const std::string &dstFile)
+{
+    if (!isPathCorrect(srcFile) || !isPathCorrect(dstFile)) {
+        return false;
+    }
+    try {
+        std::filesystem::rename(srcFile, dstFile);
+    } catch (...) {
+        return false;
+    }
+    return true;
+}
+
 bool fileSystem::isPathCorrect(const std::string& dirPath)
 {
     if (dirPath.empty()) {

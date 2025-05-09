@@ -9,35 +9,50 @@
 #include "EnvManager/EnvManager.hpp"
 #include "JsonUtils/JsonUtils.hpp"
 #include "FileUtils/fileSystem.hpp"
+#include "FileUtils/FileStream.hpp"
+#include "TimeUtils/TimeUtils.hpp"
+#include <sstream>
 namespace CHAT::Utils::Log {
 Logger::Logger()
 {
-    initLogConfig();
+    initLogConfigAndStart();
 }
 
-void Logger::initLogConfig() 
+Logger::~Logger()
+{
+    if (!m_archivedThread.joinable()) {
+        {
+            std::lock_guard<std::mutex> lock(m_archivedThreadMutex);
+            m_exitArchivedThread = true;
+        }
+        m_conArchivedThread.notify_one();
+        m_archivedThread.join();
+    }
+}
+
+void Logger::initLogConfigAndStart() 
 {
     std::string configFilePath = CHAT::Utils::EnvManager::EnvManager::getInstance().getGlobalConfigPath() + 
         "/LoggerConfig.json";
     CHAT::Utils::Json::JsonUtils jsonUtils;
     CHAT::Utils::Json::JsonValue jsonValue = jsonUtils.loadFromFile(configFilePath);
     
-    m_logDirectory = jsonValue.get("log_directory", "logs").asString();
-    m_archiveDirectory = jsonValue.get("archive_directory", "logs/archives").asString();
+    std::string logRootPath = Utils::EnvManager::EnvManager::getInstance().getLogPath();
+    m_logDirectory = logRootPath + jsonValue.get("log_directory", "logs").asString();
+    m_archiveDirectory = logRootPath + jsonValue.get("archive_directory", "logs/archives").asString();
     m_maxLogSize = jsonValue.get("log_max_size", 10485760).asInt();
-    std::string logFilePath = m_logDirectory + "/log.trace";
-    CHAT::Utils::FileUtils::fileSystem::createDirectory(logFilePath);
-    // logFile.open(logFilePath, std::ios::app);
-    if (!logFile.is_open()) {
+    m_flushCount = jsonValue.get("flush_account", 500).asInt();
+    m_currentLogSize = 0;
+    m_logFile =  m_logDirectory + "/log.trace";
+    CHAT::Utils::FileUtils::fileSystem::createDirectory(m_logDirectory);
+    m_fileStream = std::make_unique<Utils::FileUtils::FileStream<std::ofstream>>(m_logFile, std::ios::out | std::ios::app);
+    if (!m_fileStream->isGood()) {
         throw std::runtime_error("Failed to open log file.");
     }
-
-    // 设置当前文件大小
-    logFile.seekp(0, std::ios::end);
-    currentLogSize = logFile.tellp();
+    m_archivedThread = std::thread(&Logger::archiveThreadFunc, this);
+    startAsyncTask();
 }
 
-// 获取当前时间的辅助函数
 std::string Logger::getCurrentTime() {
     using namespace std::chrono;
     auto now = system_clock::now();
@@ -58,51 +73,85 @@ const std::string Logger::logLevelToString(LogLevel level) {
     }
 }
 
-// 写入日志文件（线程安全）
-void Logger::writeLogToFile(const std::string& logMessage) {
-    std::lock_guard<std::mutex> lock(logMutex);  // 自动加锁，确保线程安全
-
-    if (currentLogSize >= maxLogSize) {
-        archiveLogFile();
+void Logger::writeLogToFile(std::vector<std::string> logs)
+{
+    std::ostringstream oss;
+    size_t newDataSize = 0;
+    for (const auto& logMessage : logs) {
+        oss << logMessage << '\n';
+        newDataSize += logMessage.size() + 1;
     }
-
-    logFile << logMessage << '\n';
-    logFile.flush();
-    currentLogSize += logMessage.size();
-}
-
-// 文件归档（线程安全）
-void Logger::archiveLogFile() {
-    {
-        std::lock_guard<std::mutex> lock(logMutex);
-        if (isArchiving) return;
-        isArchiving = true;
+    (*m_fileStream) << oss.str();
+    if (!m_fileStream->isGood()) {
+        std::cerr << "Warning: Failed to write log to file." << std::endl;
     }
+    m_fileStream->flush();
 
-    std::string archiveFilePath = archiveDirectory + "/log_" + getCurrentTime() + ".txt";
-    {
-        std::lock_guard<std::mutex> lock(logMutex);
-        logFile.close();  // 关闭当前日志文件
-
-        // 重命名并归档
-        std::filesystem::rename(logDirectory + "/log.txt", archiveFilePath);
-
-        // 重新打开日志文件
-        logFile.open(logDirectory + "/log.txt", std::ios::out | std::ios::trunc);
-        if (!logFile.is_open()) {
-            isArchiving = false;
-            throw std::runtime_error("Failed to reopen log file after archiving.");
-        }
-        currentLogSize = 0;  // 重置当前文件大小
-        isArchiving = false;
+    m_currentLogSize += newDataSize;
+    if (m_currentLogSize * 2 >= m_maxLogSize) {
+        requestArchive();
     }
 }
 
-void Logger::log(LogLevel level, const std::string& moduleName, const std::string& message) {
-    if (level < minLogLevel) return;
-
+void Logger::log(LogLevel level, const std::string& moduleName, const std::string& message) 
+{
     std::string logMessage = "[" + getCurrentTime() + "] [" + logLevelToString(level) + "] [" + moduleName + "] " + message;
-    writeLogToFile(logMessage);
+    pushMessage(logMessage);
 }
 
+void Logger::pushMessage(const std::string& message)
+{
+    std::lock_guard lockGuard(m_logMutex);
+    m_logCache.emplace_back(message);
+}
+
+uint32_t Logger::loopInterval()
+{
+    return 1;
+}
+
+bool Logger::svc()
+{
+    std::vector<std::string> tempLogs;
+    consumeCache(tempLogs);
+    writeLogToFile(std::move(tempLogs));
+    return true;
+}
+
+void Logger::consumeCache(std::vector<std::string>& logs)
+{
+    std::lock_guard lockGuard(m_logMutex);
+    logs.swap(m_logCache);
+}
+
+void Logger::archiveThreadFunc() {
+    while (true) {
+        std::unique_lock<std::mutex> lock(m_archivedThreadMutex);
+        m_conArchivedThread.wait(lock, [this] { return m_archivedRequested || m_exitArchivedThread; });
+
+        if (m_exitArchivedThread) break;
+        m_archivedRequested = false;
+        lock.unlock();
+        {
+            std::lock_guard<std::mutex> logLock(m_logMutex);
+            std::string archivePath = m_archiveDirectory + "/" + getCurrentTime() + "_log.txt";
+            m_fileStream->close();
+            CHAT::Utils::FileUtils::fileSystem::renameFile(m_logFile, archivePath);
+            try {
+                m_fileStream = std::make_unique<Utils::FileUtils::FileStream<std::ofstream>>(m_logFile, std::ios::out | std::ios::trunc);
+            } catch (const std::exception& e) {
+                std::cerr << "Log archive reopen failed: " << e.what() << std::endl;
+            }
+            m_currentLogSize = 0;
+        }
+    }
+}
+void Logger::requestArchive()
+{
+    {
+        std::lock_guard<std::mutex> lock(m_archivedThreadMutex);
+        m_archivedRequested = true;
+    }
+    m_conArchivedThread.notify_one();
+}
 }
