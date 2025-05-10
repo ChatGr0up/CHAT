@@ -23,8 +23,6 @@ public:
 
 protected:
     uint32_t loopInterval() override;
-        
-    uint32_t loopDelayTime() override;
 
     bool svc() override;
 
@@ -53,6 +51,8 @@ private:
 
     void requestArchive();
 
+    bool isFileTooBig(const std::string& fileName);
+
 private:
     std::string m_logDirectory;
     std::string m_archiveDirectory;
@@ -68,6 +68,7 @@ private:
     std::mutex m_archivedThreadMutex;
     std::atomic<bool> m_archivedRequested;
     std::atomic<bool> m_exitArchivedThread;
+    int m_logArchivedCount{0};
     std::unique_ptr<Utils::FileUtils::FileStream<std::ofstream>> m_fileStream;
 };
 }

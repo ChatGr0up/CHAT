@@ -1,8 +1,8 @@
 {
     "log_directory": "logs",
     "archive_directory": "logs/archives",
-    "log_max_size": 10485760,
+    "log_max_size": 104857600,
     "min_log_level": "INFO",
-    "flush_time": 0.5,
-    "flush_account": 500
+    "flush_time": 1,
+    "flush_account": 1000000
 }

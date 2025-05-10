@@ -1,6 +1,7 @@
 #include "AsyncTask.hpp"
 #include <thread>
 #include <chrono>
+#include <iostream>
 
 namespace CHAT::Utils::Thread {
 AsyncTask::~AsyncTask()
@@ -16,10 +17,9 @@ bool AsyncTask::startAsyncTask()
     m_isRunning = true;
     m_loopInterval = loopInterval();
     try {
-        auto self  = shared_from_this(); // 保证线程对象使用当前对象的时候当前对象还是存活
-        m_thread = std::thread([self](){
-            std::this_thread::sleep_for(std::chrono::milliseconds(self->loopDelayTime()));
-            self->loop();
+        m_thread = std::thread([this](){
+            std::this_thread::sleep_for(std::chrono::milliseconds(this->loopDelayTime()));
+            this->loop();
         });
         m_threadId = m_thread.get_id();
         return true;

@@ -5,6 +5,7 @@
 #include <dlfcn.h>
 #include <unordered_map>
 namespace CHAT::Utils::Module {
+using DlCloser = int (*)(void*);    
 struct ModuleDeleter {
     void operator()(ModuleBase* module) const {
         delete module;
@@ -36,7 +37,7 @@ private:
     ModuleLoader() = default;    
 
 private:
-    std::vector<std::unique_ptr<void, decltype(&dlclose)>> handles; 
+    std::vector<std::unique_ptr<void, DlCloser>> handles; 
     std::vector<std::unique_ptr<ModuleBase, ModuleDeleter>> instances; 
     std::unordered_map<std::string, ModuleBase*> instanceMap;
 };

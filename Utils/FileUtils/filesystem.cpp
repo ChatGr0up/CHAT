@@ -2,6 +2,7 @@
 #include <cctype>
 #include <algorithm>
 #include "fileSystem.hpp"
+#include <iostream>
 namespace CHAT::Utils::FileUtils {
 std::string fileSystem::currentPath(const std::string& filename) 
 {
@@ -67,6 +68,20 @@ bool fileSystem::renameFile(const std::string &srcFile, const std::string &dstFi
     try {
         std::filesystem::rename(srcFile, dstFile);
     } catch (...) {
+        return false;
+    }
+    return true;
+}
+
+bool fileSystem::getFileStat(const std::string &fileName, FileStat &fileStat)
+{
+    if (!isPathCorrect(fileName)) {
+        return false;
+    }
+    if (!(std::filesystem::exists(fileName) && std::filesystem::is_regular_file(fileName))) {
+        return false;
+    }
+    if(stat(fileName.c_str(), &fileStat) != 0) {
         return false;
     }
     return true;

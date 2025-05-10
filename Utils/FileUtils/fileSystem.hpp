@@ -1,5 +1,7 @@
 #pragma once
+
 #include <string>
+#include "CommonDefine.hpp"
 namespace CHAT::Utils::FileUtils {
 class fileSystem {
 public:        
@@ -12,6 +14,8 @@ public:
     static bool isDirectoryExists(const std::string& dirPath);
 
     static bool renameFile(const std::string& srcFile, const std::string& dstFile);
+
+    static bool getFileStat(const std::string& fileName, FileStat& fileStat);
 
 private:
     static bool isPathCorrect(const std::string& dirPath);

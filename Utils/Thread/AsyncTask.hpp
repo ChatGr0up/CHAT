@@ -5,7 +5,7 @@
 #include <memory>
 
 namespace CHAT::Utils::Thread {
-class AsyncTask : public std::enable_shared_from_this<AsyncTask> {
+class AsyncTask {
 public:
     AsyncTask() = default;
 

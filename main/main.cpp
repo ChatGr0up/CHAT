@@ -11,6 +11,7 @@
 #include <atomic>
 #include "FileUtils/fileSystem.hpp"
 #include "EnvManager/EnvManager.hpp"
+#include "Logger/LogMacroDef.hpp"
 
 std::condition_variable chat_root_cv;
 std::mutex char_root_mtx;;
@@ -23,7 +24,7 @@ void signalHandler(int signum) {
 }
 
 int main() {
-    std::cout << "initializing the full process!" << std::endl;
+    TRACE("CHAT::MAIN", "initializing the full process!");
     CHAT::Utils::Json::JsonUtils jsonUtils;
     std::string configRootPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getGlobalConfigPath();
     std::string moduleConfigPath = configRootPath + "/ModuleDefine.json";
@@ -34,17 +35,17 @@ int main() {
             if (module.isString()) {
                 modules.push_back(module.asString());
             } else {
-                std::cerr << "Module name must be string" << std::endl;
+                ERROR("CHAT::MAIN", "Module name must be string");
             }
         }
     } else {
-        std::cerr << "ModuleDefine.json must contains modules array" << std::endl;
+        ERROR("CHAT::MAIN", "ModuleDefine.json must contains modules array");
     }
     CHAT::Utils::Module::ModuleLoader::getInstance().loadModules(modules);
-    std::cout << "All modules initialized. Waiting for termination signal..." << std::endl;
+    TRACE("CHAT::MAIN", "All modules initialized. Waiting for termination signal...");
     std::unique_lock<std::mutex> lk(char_root_mtx);
     signal(SIGINT, signalHandler);
     chat_root_cv.wait(lk, []{ return exitFlag.load(); });  
-    std::cout << "Service stopping, cleaning up resources..." << std::endl;
+    TRACE("CHAT::MAIN", "Service stopping, cleaning up resources...");
     return 0;
 }

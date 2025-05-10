@@ -9,4 +9,11 @@ echo "LOG_DIR is "$LOG_DIR""
 echo "BUILD_TYPE is "$BUILD_TYPE""
 
 echo "Now start the MicroService!"
-./build/main/main
+
+if [[ "$1" == "debug" ]]; then
+    echo "[DEBUG MODE] Running with strace..."
+    strace -o "$LOG_DIR/strace_output.log" ./build/main/main > "$LOG_DIR/main.log" 2>&1 &
+else
+    echo "[RELEASE MODE] Running with nohup..."
+    nohup ./build/main/main > "$LOG_DIR/main.log" 2>&1 &
+fi

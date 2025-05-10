@@ -1,5 +1,7 @@
 #include "ModuleLoader.hpp"
 #include "EnvManager/EnvManager.hpp"
+#include "Logger/LogMacroDef.hpp"
+
 namespace CHAT::Utils::Module {
 ModuleLoader& ModuleLoader::getInstance()
 {
@@ -11,21 +13,19 @@ void ModuleLoader::loadModules(const std::vector<std::string>& modules) {
     std::string libPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getLibPath();
     for (const auto& module : modules) {
         std::string path = libPath + "/lib" + module + ".so";
-        std::cout << "Loading module: " << path << std::endl;
+        TRACE("CHAT::Utils::Module::ModuleLoader::loadModules", "Loading module: " + path);
         const char* pathCStr = path.c_str();
-        std::unique_ptr<void, decltype(&dlclose)> handle(dlopen(pathCStr, RTLD_LAZY), dlclose);
+        std::unique_ptr<void, DlCloser> handle(dlopen(pathCStr, RTLD_LAZY), dlclose);
         if (!handle) {
-            std::cerr << "Failed to load " << module << ": " << dlerror() << std::endl;
+            ERROR("CHAT::Utils::Module::ModuleLoader::loadModules", "Failed to load " + path + ": " + dlerror());
             continue;
         }
-
         using CreateModuleFunc = ModuleBase* (*)();
         auto createModule = reinterpret_cast<CreateModuleFunc>(dlsym(handle.get(), "createModule"));
         if (!createModule) {
-            std::cerr << "No createModule function in " << module << std::endl;
+            ERROR("CHAT::Utils::Module::ModuleLoader::loadModules", "No createModule function in " + path);
             continue;
         }
-
         std::unique_ptr<ModuleBase, ModuleDeleter> moduleInstance(createModule());
         moduleInstance->init();  
         handles.emplace_back(std::move(handle));
