@@ -1,6 +1,7 @@
 {
     "modules": [
         "ModuleA",
-        "ModuleB"
+        "ModuleB",
+        "ChatCppRestService"
     ]
 }

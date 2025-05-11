@@ -1,0 +1,10 @@
+{
+    "routes": [
+      {
+        "route_path": "/chat/test",
+        "rest_method": "POST",
+        "source_class": "ChatCppRestService",
+        "handler_name": "sendMessage"
+      }
+    ]
+  }
