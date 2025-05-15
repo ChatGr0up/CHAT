@@ -8,7 +8,7 @@ class ChatCppRestService : public Module::ChatCppRestServiceItf {
 public:
     ChatCppRestService() = default;
 
-    ~ChatCppRestService() = default;
+    ~ChatCppRestService();
 
     ChatCppRestService(const ChatCppRestService&) = delete;
 
@@ -18,9 +18,12 @@ public:
 
     void init() override;
 
-    void registerHandler(const std::string& className, const std::string& methodName, Utils::RestFrame::JsonHandler handler);
+    void registerHandler(const std::string& className, const std::string& methodName, 
+        Utils::RestFrame::JsonHandler handler, const std::string& path);
 
 private:
     void loadRoutesFromConfig();
+
+    void sendMessage();
 };
 }

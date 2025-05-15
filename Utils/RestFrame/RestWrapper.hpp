@@ -9,9 +9,11 @@ class RestWrapper {
 public:
     static RestWrapper& instance();
 
-    void registerHandler(const std::string& className, const std::string& methodName, JsonHandler handler);
+    void registerHandler(const std::string& className, const std::string& methodName, JsonHandler handler, const std::string& path);
 
     void loadRoutesFromConfig(); // only call when all rest methods have been registered!
+
+    void startBySingle(); // only call when all rest methods have been registered!
 
 private:
     RestWrapper() = default;
@@ -27,8 +29,6 @@ private:
     bool isRouteValid(const std::string& route);
 
     void registerRoute(const std::string& path, const std::vector<HttpMethod>& method, JsonHandler handler);
-
-    void startBySingle(); // only call when all rest methods have been registered!
 
 private:
     std::string m_ipAddress{"0.0.0.0"};
