@@ -1,11 +1,15 @@
 # 1、如何构建chat的cpp微服务
 
-1、先执行config目录下面的env_setup.sh脚本，设置环境
-2、执行根目录下面的build.sh脚本进行构建
+推荐使用docker构建，避免出现依赖等问题
 
-# 2、如何运行chat的cpp微服务
+执行:
+docker build --build-arg APP_DIR=$PWD  -t chat-dev-container -f Dockerfile .
 
-1、执行根目录的run.sh
+# 2、如何编译chat的cpp微服务
+
+执行
+./container_build.sh
+里面指定了容器镜像名称为chat-dev-container，如果你使用了其他名称，请修改脚本中的名称。
 
 # 3、chat的cpp微服务依赖
 

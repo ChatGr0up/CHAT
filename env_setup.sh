@@ -14,7 +14,7 @@ echo "安装 JSON 解析库..."
 sudo apt install -y libjsoncpp-dev=1.9.5-6build1
 
 echo "安装 MySQL 服务器和开发库..."
-sudo apt install -y mysql-server=8.0.42-0ubuntu0.24.04.1 libmysqlclient-dev=8.0.42-0ubuntu0.24.04.1
+sudo apt install -y libmysqlclient-dev=8.0.42-0ubuntu0.24.04.1
 
 echo "安装drogon依赖..."
 sudo apt install uuid-dev=2.39.3-9ubuntu6.2 \

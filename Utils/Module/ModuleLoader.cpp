@@ -14,6 +14,7 @@ void ModuleLoader::loadModules(const std::vector<std::string>& modules) {
     for (const auto& module : modules) {
         std::string path = libPath + "/lib" + module + ".so";
         TRACE("CHAT::Utils::Module::ModuleLoader::loadModules", "Loading module: " + path);
+        std::cout <<path<< std::endl;
         const char* pathCStr = path.c_str();
         std::unique_ptr<void, DlCloser> handle(dlopen(pathCStr, RTLD_LAZY), dlclose);
         if (!handle) {

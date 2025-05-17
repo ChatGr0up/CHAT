@@ -24,6 +24,7 @@ void signalHandler(int signum) {
 }
 
 int main() {
+    std::cout << "Starting CHAT service..." << std::endl;
     TRACE("CHAT::MAIN", "initializing the full process!");
     CHAT::Utils::Json::JsonUtils jsonUtils;
     std::string configRootPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getGlobalConfigPath();
