@@ -4,6 +4,7 @@
 #include "RestFrame/CommonDefine.hpp"
 
 namespace CHAT::Module {
+using JsonValue = CHAT::Utils::Json::JsonValue;
 class ChatCppRestService : public Module::ChatCppRestServiceItf {
 public:
     ChatCppRestService() = default;
@@ -20,10 +21,7 @@ public:
 
     void registerHandler(const std::string& className, const std::string& methodName, 
         Utils::RestFrame::JsonHandler handler, const std::string& path);
-
 private:
-    void loadRoutesFromConfig();
-
-    void sendMessage();
+    JsonValue handleHello(const JsonValue& jsonRequest);
 };
 }
