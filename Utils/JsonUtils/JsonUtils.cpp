@@ -42,6 +42,9 @@ std::string JsonUtils::toString(const JsonValue& j) {
 
 JsonValue JsonUtils::fromString(const std::string& jsonStr) {
     JsonValue root;
+    if (jsonStr.empty()) {
+        return root;
+    }
     CharReaderBuilder readerBuilder;
     std::istringstream stream(jsonStr);
     std::string errors;

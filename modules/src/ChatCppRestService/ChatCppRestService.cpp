@@ -15,35 +15,22 @@ ChatCppRestService::~ChatCppRestService()
 
 void ChatCppRestService::init() 
 {
-    sendMessage();
-    // make sure to call it after all rest methods have been registered
-    TRACE("ChatCppRestService::init", "now register the rest mothods and run!");
-    // loadRoutesFromConfig();
-    CHAT::Utils::RestFrame::RestWrapper::instance().startBySingle();
+    registerHandler("ChatCppRestService", "GET", std::bind(&ChatCppRestService::handleHello, this, std::placeholders::_1), "/chat/v1/chatcpp-0/hello");
 }
 
-void ChatCppRestService::loadRoutesFromConfig()
+void ChatCppRestService::registerHandler(const std::string& className, const std::string& methodName, Utils::RestFrame::JsonHandler handler, const std::string& path)
 {
-    CHAT::Utils::RestFrame::RestWrapper::instance().loadRoutesFromConfig();
+    // TRACE("ChatCppRestService::registerHandler", "className " + className + " ,methodName " + methodName + " ,path " + path);
+    CHAT::Utils::RestFrame::RestWrapper::instance().registerHandler(methodName, handler, path);
 }
 
-void ChatCppRestService::sendMessage()
+JsonValue ChatCppRestService::handleHello(const JsonValue& jsonRequest)
 {
-    Utils::RestFrame::JsonHandler operate = [](const CHAT::Utils::Json::JsonValue& request) -> CHAT::Utils::Json::JsonValue {
-        CHAT::Utils::Json::JsonValue result;
-        result["result"] = "ok";
-        result["message"] = "succeffully called";
-        return result;
-    };
-    std::string path = "/chatcpp-0/v1/hello";
-    registerHandler("ChatCppRestService", "POST", operate, path);
-}
-
-void ChatCppRestService::registerHandler(const std::string& className, const std::string& methodName, 
-    Utils::RestFrame::JsonHandler handler, const std::string& path)
-{
-    TRACE("debug", "1");
-    CHAT::Utils::RestFrame::RestWrapper::instance().registerHandler(className, methodName, handler, path);
+    TRACE("ChatCppRestService::handleHello", "ChatCppRestService::handleHello is called");
+    // CHAT::Utils::Json::JsonValue result;
+    // result["result"] = "ok";
+    // result["message"] = "succeffully called";
+    return JsonValue();
 }
 }
 extern "C" CHAT::Module::ChatCppRestServiceItf* createModule() {

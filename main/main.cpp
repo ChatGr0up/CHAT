@@ -12,6 +12,7 @@
 #include "FileUtils/fileSystem.hpp"
 #include "EnvManager/EnvManager.hpp"
 #include "Logger/LogMacroDef.hpp"
+#include "RestFrame/RestWrapper.hpp"
 
 std::condition_variable chat_root_cv;
 std::mutex char_root_mtx;;
@@ -24,7 +25,6 @@ void signalHandler(int signum) {
 }
 
 int main() {
-    std::cout << "Starting CHAT service..." << std::endl;
     TRACE("CHAT::MAIN", "initializing the full process!");
     CHAT::Utils::Json::JsonUtils jsonUtils;
     std::string configRootPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getGlobalConfigPath();
@@ -43,6 +43,8 @@ int main() {
         ERROR("CHAT::MAIN", "ModuleDefine.json must contains modules array");
     }
     CHAT::Utils::Module::ModuleLoader::getInstance().loadModules(modules);
+    TRACE("ChatCppRestService::init", "now run!");
+    CHAT::Utils::RestFrame::RestWrapper::instance().startBySingle();
     TRACE("CHAT::MAIN", "All modules initialized. Waiting for termination signal...");
     std::unique_lock<std::mutex> lk(char_root_mtx);
     signal(SIGINT, signalHandler);

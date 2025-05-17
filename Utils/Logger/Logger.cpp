@@ -28,7 +28,7 @@ Logger::Logger()
 
 Logger::~Logger()
 {
-    if (!m_archivedThread.joinable()) {
+    if (m_archivedThread.joinable()) {
         {
             std::lock_guard<std::mutex> lock(m_archivedThreadMutex);
             m_exitArchivedThread = true;
