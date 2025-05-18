@@ -33,5 +33,6 @@ private:
     std::mutex m_startedMutex;
     std::condition_variable m_startedCond;
     bool m_isStarted{false};
+    HandlerCache handlerCache;
 };    
 }
