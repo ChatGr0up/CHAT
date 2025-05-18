@@ -83,15 +83,19 @@ bool RestWrapper::registerHandler(const std::string& methodName, JsonHandler han
     HandlerCacheKey key{methodName, path};
     handlerCache.insert({key, handler});
     auto httpMethods = parseHttpMethod(methodName);
-    auto lambda = [this, path, methodName](const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
+    auto lambda = [this, path, methodName, key](const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
         TRACE("lambda of rest", "path is " + req->getPath());
         try {
             TRACE("lambda of rest", "fuck 1");
-            if (handlerCache.find(std::make_pair(methodName, path)) == handlerCache.end()) {
+            if (this == nullptr) {
+                TRACE("lambda of rest", "what the fuck");
+                return ;
+            }
+            if (this->handlerCache.find(key) == this->handlerCache.end()) {
                 ERROR("lambda of rest", "fatal error, cannot find cache of handlers");
                 return;
             }
-            const auto& realHandler = handlerCache[std::make_pair(methodName, path)];
+            const auto& realHandler = this->handlerCache[key];
             TRACE("lambda of rest", "fuck 2");
             if (!realHandler) {
                 ERROR("lambda of rest", "handler empty : " + path);
