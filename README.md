@@ -1,3 +1,4 @@
+![image](https://github.com/user-attachments/assets/57152f2c-f8ee-4853-b017-c5379bd5c2ca)
 # 1、如何构建chat的cpp微服务
 
 推荐使用docker构建，避免出现依赖等问题
