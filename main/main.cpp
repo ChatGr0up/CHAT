@@ -28,7 +28,7 @@ void signalHandler(int signum) {
 
 int main() {
     TRACE("CHAT::MAIN", "initializing the full process!");
-     signal(SIGINT, signalHandler);
+    signal(SIGINT, signalHandler);
     CHAT::Utils::Json::JsonUtils jsonUtils;
     std::string configRootPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getGlobalConfigPath();
     std::string moduleConfigPath = configRootPath + "/ModuleDefine.json";
