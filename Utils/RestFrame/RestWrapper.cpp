@@ -87,11 +87,11 @@ bool RestWrapper::registerHandler(const std::string& methodName, JsonHandler han
         TRACE("lambda of rest", "path is " + req->getPath());
         try {
             TRACE("lambda of rest", "fuck 1");
-            if (this == nullptr) {
-                TRACE("lambda of rest", "what the fuck");
-                return ;
+            if (handlerCache.empty()) {
+                TRACE("lambda of rest", "strange things happen");
+                return;
             }
-            if (this->handlerCache.find(key) == this->handlerCache.end()) {
+            if (handlerCache.find(std::make_pair(methodName, path)) == handlerCache.end()) {
                 ERROR("lambda of rest", "fatal error, cannot find cache of handlers");
                 return;
             }

@@ -13,6 +13,7 @@
 #include "EnvManager/EnvManager.hpp"
 #include "Logger/LogMacroDef.hpp"
 #include "RestFrame/RestWrapper.hpp"
+#include "drogon/drogon.h"
 
 std::condition_variable chat_root_cv;
 std::mutex char_root_mtx;;
@@ -21,11 +22,13 @@ std::atomic<bool> exitFlag = false;
 void signalHandler(int signum) {
     std::cout << "Received signal " << signum << ", shutting down..." << std::endl;
     exitFlag = true;
+    drogon::app().quit();
     chat_root_cv.notify_all();  // 解除等待，让 main 退出
 }
 
 int main() {
     TRACE("CHAT::MAIN", "initializing the full process!");
+     signal(SIGINT, signalHandler);
     CHAT::Utils::Json::JsonUtils jsonUtils;
     std::string configRootPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getGlobalConfigPath();
     std::string moduleConfigPath = configRootPath + "/ModuleDefine.json";
@@ -43,11 +46,9 @@ int main() {
         ERROR("CHAT::MAIN", "ModuleDefine.json must contains modules array");
     }
     CHAT::Utils::Module::ModuleLoader::getInstance().loadModules(modules);
-    TRACE("ChatCppRestService::init", "now run!");
-    CHAT::Utils::RestFrame::RestWrapper::instance().startBySingle();
-    TRACE("CHAT::MAIN", "All modules initialized. Waiting for termination signal...");
+    TRACE("CHAT::MAIN", "All modules initialized. start rest service and Waiting for termination signal...");
+    drogon::app().addListener("0.0.0.0", 6789).run();
     std::unique_lock<std::mutex> lk(char_root_mtx);
-    signal(SIGINT, signalHandler);
     chat_root_cv.wait(lk, []{ return exitFlag.load(); });  
     TRACE("CHAT::MAIN", "Service stopping, cleaning up resources...");
     return 0;
