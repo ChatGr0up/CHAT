@@ -15,7 +15,9 @@ ChatCppRestService::~ChatCppRestService()
 
 void ChatCppRestService::init() 
 {
-    registerHandler("ChatCppRestService", "POST", std::bind(&ChatCppRestService::handleHello, this, std::placeholders::_1), "/chat/v1/chatcpp-0/hello");
+    // registerHandler("ChatCppRestService", "GET", std::bind(&ChatCppRestService::handleHello, this, std::placeholders::_1), "/chat/v1/chatcpp-0/hello");
+    registerHandler("ChatCppRestService", "GET", nullptr, "/chat/v1/chatcpp-0/hello");
+
 }
 
 void ChatCppRestService::registerHandler(const std::string& className, const std::string& methodName, Utils::RestFrame::JsonHandler handler, const std::string& path)
