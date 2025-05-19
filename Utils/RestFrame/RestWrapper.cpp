@@ -177,7 +177,7 @@ bool RestWrapper::registerHandler(const std::string& methodName, JsonHandler han
     };
     
     TRACE("RestWrapper::registerRoute", "registerHandler, path is " + path + ", method is " + methodName);
-    drogon::app().registerHandler(path, lambda, getConstraintFromMethodVec(httpMethods));
+    drogon::app().registerHandler(path, std::move(lambda), getConstraintFromMethodVec(httpMethods));
     return true;
 }
 
