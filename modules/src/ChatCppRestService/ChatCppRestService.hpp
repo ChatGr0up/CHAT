@@ -5,17 +5,11 @@
 
 namespace CHAT::Module {
 using JsonValue = CHAT::Utils::Json::JsonValue;
-class ChatCppRestService : public Module::ChatCppRestServiceItf, 
-    public drogon::HttpController<ChatCppRestService> {
-public:
-    METHOD_LIST_BEGIN
-    ADD_METHOD_TO(ChatCppRestService::handleHello, "/hello", drogon::Get);
-    METHOD_LIST_END
-            
+class ChatCppRestService : public Module::ChatCppRestServiceItf {
 public:
     ChatCppRestService() = default;
 
-    ~ChatCppRestService();
+    ~ChatCppRestService() override = default;
 
     ChatCppRestService(const ChatCppRestService&) = delete;
 
@@ -26,9 +20,10 @@ public:
     void init() override;
 
     void registerHandler(const std::string& className, const std::string& methodName, 
-        Utils::RestFrame::JsonHandler handler, const std::string& path);
-        
-public:
-    void handleHello(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+     Utils::RestFrame::JsonHandler handler, const std::string& path);
+private:
+    JsonValue testFunc(const JsonValue& req);
+
+    void startRestService();
 };
 }

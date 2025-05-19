@@ -8,14 +8,19 @@ std::string ChatCppRestService::name() const
     return std::string("ChatCppRestService");
 }
 
-ChatCppRestService::~ChatCppRestService()
+JsonValue ChatCppRestService::testFunc(const JsonValue &req)
 {
-    TRACE("ChatCppRestService::~ChatCppRestService", "ChatCppRestService destructor!");
+    Json::Value ret;
+    ret["retCode"] = 0;
+    ret["message"] = "Hello from testFunc!";
+    return ret;
 }
 
 void ChatCppRestService::init() 
 {
     TRACE("ChatCppRestService::init", "ChatCppRestService::init is called");
+    registerHandler("ChatCppRestService", "GET", std::bind(&ChatCppRestService::testFunc, this, std::placeholders::_1), "/testFunc");
+    startRestService();
 }
 
 void ChatCppRestService::registerHandler(const std::string& className, const std::string& methodName, Utils::RestFrame::JsonHandler handler, const std::string& path)
@@ -24,16 +29,10 @@ void ChatCppRestService::registerHandler(const std::string& className, const std
     CHAT::Utils::RestFrame::RestWrapper::instance().registerHandler(methodName, handler, path);
 }
 
-void ChatCppRestService::handleHello(const drogon::HttpRequestPtr& req, 
-    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+void ChatCppRestService::startRestService()
 {
-    Json::Value ret;
-    ret["retCode"] = 0;
-    ret["message"] = "Hello from controller!";
-    auto resp = drogon::HttpResponse::newHttpJsonResponse(ret);
-    callback(resp);
+    CHAT::Utils::RestFrame::RestWrapper::instance().startBySingle();
 }
-
 }
 extern "C" CHAT::Module::ChatCppRestServiceItf* createModule() {
     return new CHAT::Module::ChatCppRestService();

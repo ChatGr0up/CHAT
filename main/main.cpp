@@ -22,8 +22,7 @@ std::atomic<bool> exitFlag = false;
 void signalHandler(int signum) {
     std::cout << "Received signal " << signum << ", shutting down..." << std::endl;
     exitFlag = true;
-    drogon::app().quit();
-    chat_root_cv.notify_all();  // 解除等待，让 main 退出
+    chat_root_cv.notify_all(); 
 }
 
 int main() {
@@ -46,8 +45,7 @@ int main() {
         ERROR("CHAT::MAIN", "ModuleDefine.json must contains modules array");
     }
     CHAT::Utils::Module::ModuleLoader::getInstance().loadModules(modules);
-    TRACE("CHAT::MAIN", "All modules initialized. start rest service and Waiting for termination signal...");
-    drogon::app().addListener("0.0.0.0", 6789).run();
+    TRACE("CHAT::MAIN", "All modules initialized. Waiting for termination signal...");
     std::unique_lock<std::mutex> lk(char_root_mtx);
     chat_root_cv.wait(lk, []{ return exitFlag.load(); });  
     TRACE("CHAT::MAIN", "Service stopping, cleaning up resources...");

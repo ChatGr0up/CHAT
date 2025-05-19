@@ -34,13 +34,12 @@ std::vector<drogon::internal::HttpConstraint> RestWrapper::getConstraintFromMeth
 void RestWrapper::startBySingle()
 {
     TRACE("RestWrapper::startBySingle", "now run the rest service， ip is " + m_ipAddress + ", port is " + std::to_string(m_port));
-    drogon::app().setLogLevel(trantor::Logger::kTrace);  // 打开详细 log
+    drogon::app().setLogLevel(trantor::Logger::kTrace);
     m_thread =  std::thread(&RestWrapper::asynRestThread, this);
     std::unique_lock<std::mutex> lock(m_startedMutex);
-    if (!m_startedCond.wait_for(lock, std::chrono::seconds(10), [this]{ return m_isStarted;})) {
-        ERROR("RestWrapper::startBySingle", "start timeout or exception!");
-        return;
-    }
+
+    m_startedCond.wait(lock, [this]{ return m_isStarted;});
+
     std::this_thread::sleep_for(std::chrono::seconds(5));
     if (!drogon::app().isRunning()) {
         ERROR("RestWrapper::startBySingle", "start failed!");
@@ -60,7 +59,7 @@ void RestWrapper::asynRestThread()
         }
         m_startedCond.notify_one();
 
-        drogon::app().run(); // 这个是阻塞，直到服务退出
+        drogon::app().run(); // 阻塞函数
     } catch (const std::exception &ex) {
         ERROR("RestWrapper::asynRestThread", std::string("Exception: ") + ex.what());
         std::lock_guard<std::mutex> lock(m_startedMutex);
@@ -80,104 +79,24 @@ bool RestWrapper::registerHandler(const std::string& methodName, JsonHandler han
         ERROR("RestWrapper::registerHandler", "handler is empty on registration for path: " + path);
         return false;
     }
-    HandlerCacheKey key{methodName, path};
-    handlerCache.insert({key, handler});
-    auto httpMethods = parseHttpMethod(methodName);
-    auto lambda = [this, path, methodName, key](const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-        TRACE("lambda of rest", "path is " + req->getPath());
+    auto httpMethods = std::move(parseHttpMethod(methodName));
+    if (httpMethods.empty()) {
+        ERROR("RestWrapper::registerHandler", "fatal error! check your param, http method invalid");
+        return false;
+    }
+    auto lambda = [handler](const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
+        TRACE("lambda of rest", "request path is " + req->getPath() + ", now call the handler!");
         try {
-            TRACE("lambda of rest", "fuck 1");
-            if (handlerCache.empty()) {
-                TRACE("lambda of rest", "strange things happen");
-                return;
-            }
-            if (handlerCache.find(std::make_pair(methodName, path)) == handlerCache.end()) {
-                ERROR("lambda of rest", "fatal error, cannot find cache of handlers");
-                return;
-            }
-            const auto& realHandler = this->handlerCache[key];
-            TRACE("lambda of rest", "fuck 2");
-            if (!realHandler) {
-                ERROR("lambda of rest", "handler empty : " + path);
-                return;
-            }
-            TRACE("lambda of rest", "fuck 3");
-            auto method = req->getMethod();
-            TRACE("lambda of rest", "fuck 4");
-            std::shared_ptr<JsonValue> jsonPtr = *req;
-            TRACE("lambda of rest", "fuck 5");
-            std::string bodyStr = std::string(req->body());
-            TRACE("lambda of rest", "fuck 6");
-            TRACE("lambda of rest", "request body size: " + std::to_string( bodyStr.size()));
-            if (method == drogon::HttpMethod::Post || method == drogon::HttpMethod::Put || method == drogon::HttpMethod::Patch) {
-                constexpr size_t MAX_BODY_SIZE = 1024 * 1024;
-                if (bodyStr.size() > MAX_BODY_SIZE) {
-                    auto resp = drogon::HttpResponse::newHttpResponse();
-                    resp->setStatusCode(drogon::k413RequestEntityTooLarge);
-                    resp->setBody("Request body too large");
-                    callback(resp);
-                    return;
-                }
-
-                if (req->getContentType() != drogon::ContentType::CT_APPLICATION_JSON) {
-                    auto resp = drogon::HttpResponse::newHttpResponse();
-                    resp->setStatusCode(drogon::k400BadRequest);
-                    resp->setContentTypeCode(drogon::ContentType::CT_TEXT_PLAIN);
-                    resp->setBody("Expected application/json");
-                    callback(resp);
-                    return;
-                }
-
-                if (bodyStr.empty()) {
-                    auto resp = drogon::HttpResponse::newHttpResponse();
-                    resp->setStatusCode(drogon::k400BadRequest);
-                    resp->setBody("Empty JSON body");
-                    callback(resp);
-                    return;
-                }
-                JsonValue jsonResponse = realHandler(*jsonPtr);
-                auto httpResponse = drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
-                httpResponse->setStatusCode(drogon::k200OK);
-                httpResponse->setContentTypeCode(drogon::ContentType::CT_APPLICATION_JSON);
-                callback(httpResponse);
-            } else {
-                JsonValue emptyJson; 
-                Json::JsonValue jsonRequest;
-                TRACE("lambda of rest", "GET METHOD, body is " + std::string(bodyStr));
-                TRACE("will call handler", "jsonRequest is " + std::string(bodyStr));
-                JsonValue jsonResponse = realHandler(*jsonPtr);
-                auto httpResponse = drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
-                httpResponse->setStatusCode(drogon::k200OK);
-                callback(httpResponse);
-            }
-        }
-         catch (const std::bad_alloc& e) {
-            ERROR("lambda of rest", "bad_alloc caught: " + std::string(e.what()));
-            auto errorResponse = drogon::HttpResponse::newHttpResponse();
-            errorResponse->setStatusCode(drogon::k500InternalServerError);
-            errorResponse->setBody("Internal Server Error: Out of memory");
-            callback(errorResponse);
-            return;
-        }
-        catch (const std::exception& e) {
-            TRACE("lambda of rest", "exception: " + std::string(e.what()));
-            auto errorResponse = drogon::HttpResponse::newHttpResponse();
-            errorResponse->setStatusCode(drogon::k500InternalServerError);
-            errorResponse->setBody("Internal Server Error: " + std::string(e.what()));
-            callback(errorResponse);
-        }
-        catch (...) {
-            ERROR("lambda of rest", "unknown exception caught");
-            auto errorResponse = drogon::HttpResponse::newHttpResponse();
-            errorResponse->setStatusCode(drogon::k500InternalServerError);
-            errorResponse->setBody("Internal Server Error: Unknown exception");
-            callback(errorResponse);
+            JsonValue jsonResponse = handler(*req->jsonObject());
+            auto httpResponse = drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
+            httpResponse->setStatusCode(drogon::k200OK);
+            callback(httpResponse);
+        }catch(...){
             return;
         }
     };
-    
     TRACE("RestWrapper::registerRoute", "registerHandler, path is " + path + ", method is " + methodName);
-    drogon::app().registerHandler(path, lambda, getConstraintFromMethodVec(httpMethods));
+    drogon::app().registerHandler(path, std::move(lambda), getConstraintFromMethodVec(httpMethods));
     return true;
 }
 
