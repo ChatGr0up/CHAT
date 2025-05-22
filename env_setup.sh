@@ -23,5 +23,6 @@ sudo apt install uuid-dev=2.39.3-9ubuntu6.2 \
     libhiredis-dev=1.2.0-6ubuntu3 \
     libyaml-cpp-dev=0.8.0+dfsg-6build1 \
     libdrogon-dev=1.8.7+ds-1.1build1 \
+    librdkafka-dev=2.3.0-1build2 \
 
 echo "所有依赖安装完成！"

@@ -17,6 +17,7 @@ RUN apt update && apt upgrade -y && \
         libyaml-cpp-dev=0.8.0+dfsg-6build1 \
         libdrogon-dev=1.8.7+ds-1.1build1 \
         libbrotli-dev=1.1.0-2build2 \
+        librdkafka-dev=2.3.0-1build2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR ${APP_DIR}
