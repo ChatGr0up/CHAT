@@ -7,8 +7,8 @@
 
 namespace CHAT::Utils::KafkaDataSender {
 
-DataSender::DataSender(const std::string& topic)
-    : m_topic(topic) {}
+DataSender::DataSender(const std::string& topic, const KafkaConfig& config)
+    : m_topic(topic), m_kafkaConfig(config) {}
 
 DataSender::~DataSender() {
     close();
@@ -23,7 +23,14 @@ bool DataSender::open() {
         return false;
     }
 
-    m_callback = std::make_shared<ChatKafkaCallbackBase>();
+    setValueIfAbsent(m_kafkaConfig, "message.max.bytes", "1000000");
+
+    for (const auto& entry : m_kafkaConfig) {
+        if (conf->set(entry.first, entry.second, errstr) != RdKafka::Conf::CONF_OK) {
+            ERROR("Kafka", "Failed to set : " + entry.first + ", and errstr is " + errstr);
+        }
+    }
+    m_callback = std::make_unique<ChatKafkaCallbackBase>();
 
     conf->set("event_cb", static_cast<RdKafka::EventCb*>(m_callback.get()), errstr);
     conf->set("dr_cb", static_cast<RdKafka::DeliveryReportCb*>(m_callback.get()), errstr);

@@ -4,6 +4,7 @@
 #include <memory>
 #include <dlfcn.h>
 #include <unordered_map>
+#include "Logger/LogMacroDef.hpp"
 namespace CHAT::Utils::Module {
 using DlCloser = int (*)(void*);    
 struct ModuleDeleter {
@@ -22,15 +23,15 @@ public:
     void loadModules(const std::vector<std::string>& modules);
 
     template<typename T>
-    std::shared_ptr<T> getModule()
+    T& getModule()
     {
-        // make sure the object is exist if you want to call this function
         for (const auto& module : instances) {
             if (auto ptr = dynamic_cast<T*>(module.get())) {
-                return std::shared_ptr<T>(ptr, [](T*){});
+                return *ptr;
             }
         }
-        return nullptr;
+        ERROR("getModule", "failed to find module");
+        throw std::runtime_error("module not found");
     }
 
 private:

@@ -2,6 +2,7 @@
     "modules": [
         "ModuleA",
         "ModuleB",
+        "UserManager",
         "ChatCppRestService"
     ]
 }

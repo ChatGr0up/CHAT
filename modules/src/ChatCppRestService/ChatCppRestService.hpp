@@ -24,6 +24,8 @@ public:
 private:
     JsonValue testFunc(const JsonValue& req);
 
+    JsonValue userManagement(const JsonValue& req);
+
     void startRestService();
 };
 }

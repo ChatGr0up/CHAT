@@ -2,8 +2,6 @@
 #include "ModuleAItf/ModuleAItf.hpp"
 #include "Module/ModuleUtils.hpp"
 
-// using CHAT::Utils::Log::LogLevel;
-
 namespace CHAT::Module {
 void ModuleB::init() {
     std::cout << "ModuleB::init()" << std::endl;

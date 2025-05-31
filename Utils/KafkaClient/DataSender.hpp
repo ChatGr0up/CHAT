@@ -6,12 +6,13 @@
 #include <mutex>
 #include <atomic>
 #include "ChatKafkaCallbackBase.hpp"
+#include "ChatKafkaCommon.hpp"
 
 namespace CHAT::Utils::KafkaDataSender {
 
 class DataSender {
 public:
-    explicit DataSender(const std::string& topic);
+    explicit DataSender(const std::string& topic, const KafkaConfig& config);
     ~DataSender();
 
     bool open();
@@ -27,6 +28,8 @@ private:
     std::shared_ptr<RdKafka::Conf> m_conf;
     std::mutex m_mutex;
     std::atomic<bool> m_opened{false};
+    std::once_flag onlyInitOnce;
+    KafkaConfig m_kafkaConfig;
 };
 
 } // namespace CHAT::Utils::KafkaDataSender
