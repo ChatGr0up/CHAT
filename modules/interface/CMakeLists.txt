@@ -1,3 +1,4 @@
 add_subdirectory(ModuleAItf)
 add_subdirectory(ModuleBItf)
 add_subdirectory(ChatCppRestServiceItf)
+add_subdirectory(UserManagerItf)

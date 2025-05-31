@@ -1,3 +1,4 @@
 add_subdirectory(ModuleA)
 add_subdirectory(ModuleB)
 add_subdirectory(ChatCppRestService)
+add_subdirectory(UserManager)

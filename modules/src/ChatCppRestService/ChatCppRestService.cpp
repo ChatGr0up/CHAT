@@ -1,6 +1,8 @@
 #include "ChatCppRestService.hpp"
 #include "RestFrame/RestWrapper.hpp"
 #include "Logger/LogMacroDef.hpp"
+#include "Module/ModuleUtils.hpp"
+#include "UserManagerItf/UserMgrItf.hpp"
 
 namespace CHAT::Module {
 std::string ChatCppRestService::name() const 
@@ -20,6 +22,7 @@ void ChatCppRestService::init()
 {
     TRACE("ChatCppRestService::init", "ChatCppRestService::init is called");
     registerHandler("ChatCppRestService", "GET", std::bind(&ChatCppRestService::testFunc, this, std::placeholders::_1), "/testFunc");
+    registerHandler("ChatCppRestService", "POST", std::bind(&ChatCppRestService::userManagement, this, std::placeholders::_1), "/v1/usermanagement");
     startRestService();
 }
 
@@ -32,6 +35,12 @@ void ChatCppRestService::registerHandler(const std::string& className, const std
 void ChatCppRestService::startRestService()
 {
     CHAT::Utils::RestFrame::RestWrapper::instance().startBySingle();
+}
+
+JsonValue ChatCppRestService::userManagement(const JsonValue& req)
+{
+    CHAT::Module::UserMgrItf& userMgrItf = CHAT::Utils::Module::getModuleRef<CHAT::Module::UserMgrItf>();
+    return userMgrItf.handleRequest(req);
 }
 }
 extern "C" CHAT::Module::ChatCppRestServiceItf* createModule() {
