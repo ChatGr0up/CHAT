@@ -1,0 +1,23 @@
+localhost:8443 {
+    reverse_proxy 127.0.0.1:8080
+    tls internal  # 使用 Caddy 内置 CA 签发本地自签证书
+
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "same-origin"
+    }
+}
+
+auth.chat.com {
+    reverse_proxy 127.0.0.1:8080
+    tls internal  # 还是用自签证书，非线上也可以调试 HTTPS
+
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "same-origin"
+    }
+}

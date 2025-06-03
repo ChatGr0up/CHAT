@@ -18,6 +18,8 @@ public:
     std::string getLibPath();
 
     std::string getLogPath();
+
+    std::string getRestServiceConfigPath();
     
 private:
     EnvManager() = default;

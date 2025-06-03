@@ -1,0 +1,7 @@
+{
+    order handle_env last
+    email liuretell@gmail.com
+    auto_https disable_redirects
+}
+
+(import "${CADDY_ENV}.caddy")

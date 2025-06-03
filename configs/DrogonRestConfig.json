@@ -1,0 +1,11 @@
+{
+  "listeners": [
+    {
+      "address": "127.0.0.1",
+      "port": 8080,
+      "https": false,
+      "cert": "/home/liu/cert.pem",
+      "key": "/home/liu/key.pem"
+    }
+  ]
+}

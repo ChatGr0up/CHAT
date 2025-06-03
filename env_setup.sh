@@ -18,11 +18,12 @@ sudo apt install -y libmysqlclient-dev=8.0.42-0ubuntu0.24.04.1
 
 echo "安装drogon依赖..."
 sudo apt install uuid-dev=2.39.3-9ubuntu6.2 \
-    libpq-dev=16.8-0ubuntu0.24.04.1 \
-    libsqlite3-dev=3.45.1-1ubuntu2.1 \
+    libpq-dev=16.9-0ubuntu0.24.04.1 \
+    libsqlite3-dev=3.45.1-1ubuntu2.3 \
     libhiredis-dev=1.2.0-6ubuntu3 \
     libyaml-cpp-dev=0.8.0+dfsg-6build1 \
     libdrogon-dev=1.8.7+ds-1.1build1 \
     librdkafka-dev=2.3.0-1build2 \
+    caddy=2.6.2-6ubuntu0.24.04.2 \
 
 echo "所有依赖安装完成！"

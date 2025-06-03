@@ -5,6 +5,7 @@
 #include "EnvManager/EnvManager.hpp"
 #include <sstream>
 #include <drogon/HttpResponse.h>
+#include "FileUtils/fileSystem.hpp"
 
 namespace CHAT::Utils::RestFrame {
 RestWrapper &RestWrapper::instance()
@@ -33,7 +34,6 @@ std::vector<drogon::internal::HttpConstraint> RestWrapper::getConstraintFromMeth
 
 void RestWrapper::startBySingle()
 {
-    TRACE("RestWrapper::startBySingle", "now run the rest service， ip is " + m_ipAddress + ", port is " + std::to_string(m_port));
     drogon::app().setLogLevel(trantor::Logger::kTrace);
     m_thread =  std::thread(&RestWrapper::asynRestThread, this);
     std::unique_lock<std::mutex> lock(m_startedMutex);
@@ -51,15 +51,30 @@ void RestWrapper::startBySingle()
 void RestWrapper::asynRestThread()
 {
     try {
-        drogon::app().addListener(m_ipAddress, m_port);
-
         {
             std::lock_guard<std::mutex> lock(m_startedMutex);
             m_isStarted = true;
         }
         m_startedCond.notify_one();
-
-        drogon::app().run(); // 阻塞函数
+        std::string configPath = CHAT::Utils::EnvManager::EnvManager::getInstance().getRestServiceConfigPath();
+        if (configPath.empty()) {
+            ERROR("RestWrapper::asynRestThread", " failed to get rest config file path, use m_port : " + std::to_string(m_port));
+            drogon::app().addListener(m_ipAddress, m_port);
+            drogon::app().run(); // 阻塞函数
+        } else {
+            configPath += "/DrogonRestConfig.json";
+            TRACE("RestWrapper::asynRestThread", "rest config path is " + configPath);
+            if (!Utils::FileUtils::fileSystem::fileExists(configPath)) {
+                ERROR("RestWrapper::asynRestThread", "fatal error, file is not exists! " + configPath);
+            }
+            try {
+                drogon::app().loadConfigFile(configPath);
+            } catch(...) {
+                ERROR("RestWrapper::asynRestThread", "failed to get configFile " + configPath);
+                drogon::app().addListener(m_ipAddress, m_port);
+            }
+            drogon::app().run(); // 阻塞函数
+        }
     } catch (const std::exception &ex) {
         ERROR("RestWrapper::asynRestThread", std::string("Exception: ") + ex.what());
         std::lock_guard<std::mutex> lock(m_startedMutex);
@@ -90,6 +105,11 @@ bool RestWrapper::registerHandler(const std::string& methodName, JsonHandler han
             JsonValue jsonResponse = handler(*req->jsonObject());
             auto httpResponse = drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
             httpResponse->setStatusCode(drogon::k200OK);
+
+            httpResponse->addHeader("Access-Control-Allow-Origin", "*");
+            httpResponse->addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            httpResponse->addHeader("Access-Control-Allow-Headers", "Content-Type");
+
             callback(httpResponse);
         }catch(...){
             return;

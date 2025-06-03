@@ -39,4 +39,12 @@ std::string EnvManager::getLogPath()
     }
     return envStr;
 }
+std::string EnvManager::getRestServiceConfigPath()
+{
+    std::string envStr(std::getenv("GLOBAL_REST_CONFIG_PATH"));
+    if (envStr.empty()) {
+        std::cerr << "fatal error!" << std::endl;
+    }
+    return envStr;
+}
 }

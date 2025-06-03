@@ -1,0 +1,14 @@
+# 用于生产环境
+chat.example.com {
+    reverse_proxy 127.0.0.1:8080
+
+    header {
+        Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "same-origin"
+    }
+
+    tls liuretell@gmail.com
+}

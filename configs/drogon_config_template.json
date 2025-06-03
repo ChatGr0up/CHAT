@@ -1,0 +1,11 @@
+{
+  "listeners": [
+    {
+      "address": "127.0.0.1",
+      "port": 8080,
+      "https": false,
+      "cert": "$SSL_PEM_PATH/cert.pem",
+      "key": "$SSL_PEM_PATH/key.pem"
+    }
+  ]
+}
