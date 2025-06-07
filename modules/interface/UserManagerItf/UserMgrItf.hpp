@@ -14,5 +14,7 @@ public:
     std::string name() const override;
     
     virtual JsonValue handleRequest(const JsonValue& request) = 0;
+
+    virtual JsonValue sendRegisterEmailVerifyCode(const JsonValue& req) = 0;
 };
 }

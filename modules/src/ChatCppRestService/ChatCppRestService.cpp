@@ -23,6 +23,7 @@ void ChatCppRestService::init()
     TRACE("ChatCppRestService::init", "ChatCppRestService::init is called");
     registerHandler("ChatCppRestService", "GET", std::bind(&ChatCppRestService::testFunc, this, std::placeholders::_1), "/testFunc");
     registerHandler("ChatCppRestService", "POST", std::bind(&ChatCppRestService::userManagement, this, std::placeholders::_1), "/v1/usermanagement");
+    registerHandler("ChatCppRestService", "POST", std::bind(&ChatCppRestService::sendRegisterEmailVerifyCode, this, std::placeholders::_1), "/v1/sendRegisterEmailVerifyCode");
     startRestService();
 }
 
@@ -41,6 +42,12 @@ JsonValue ChatCppRestService::userManagement(const JsonValue& req)
 {
     CHAT::Module::UserMgrItf& userMgrItf = CHAT::Utils::Module::getModuleRef<CHAT::Module::UserMgrItf>();
     return userMgrItf.handleRequest(req);
+}
+
+JsonValue ChatCppRestService::sendRegisterEmailVerifyCode(const JsonValue &req)
+{
+    CHAT::Module::UserMgrItf& userMgrItf = CHAT::Utils::Module::getModuleRef<CHAT::Module::UserMgrItf>();
+    return userMgrItf.sendRegisterEmailVerifyCode(req);
 }
 }
 extern "C" CHAT::Module::ChatCppRestServiceItf* createModule() {

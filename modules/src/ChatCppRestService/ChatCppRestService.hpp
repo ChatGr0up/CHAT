@@ -26,6 +26,8 @@ private:
 
     JsonValue userManagement(const JsonValue& req);
 
+    JsonValue sendRegisterEmailVerifyCode(const JsonValue& req);
+
     void startRestService();
 };
 }

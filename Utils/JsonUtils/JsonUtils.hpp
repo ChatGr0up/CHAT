@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "jsoncpp/json/json.h"
+#include <jsoncpp/json/json.h>
 
 namespace CHAT::Utils::Json {
 using JsonValue = ::Json::Value;

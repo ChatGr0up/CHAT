@@ -2,7 +2,6 @@
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
-#include "jsoncpp/json/json.h"
 
 namespace CHAT::Utils::Json {
 

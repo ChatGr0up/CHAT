@@ -6,6 +6,7 @@
 #include <sstream>
 #include <drogon/HttpResponse.h>
 #include "FileUtils/fileSystem.hpp"
+#include "drogon/HttpTypes.h"
 
 namespace CHAT::Utils::RestFrame {
 RestWrapper &RestWrapper::instance()
@@ -105,7 +106,9 @@ bool RestWrapper::registerHandler(const std::string& methodName, JsonHandler han
             JsonValue jsonResponse = handler(*req->jsonObject());
             auto httpResponse = drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
             httpResponse->setStatusCode(drogon::k200OK);
-
+            if (jsonResponse.isMember("status")) {
+                httpResponse->setStatusCode(static_cast<drogon::HttpStatusCode>(jsonResponse["status"].asInt()));
+            }
             httpResponse->addHeader("Access-Control-Allow-Origin", "*");
             httpResponse->addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
             httpResponse->addHeader("Access-Control-Allow-Headers", "Content-Type");
