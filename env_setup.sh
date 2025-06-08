@@ -26,4 +26,22 @@ sudo apt install uuid-dev=2.39.3-9ubuntu6.2 \
     librdkafka-dev=2.3.0-1build2 \
     caddy=2.6.2-6ubuntu0.24.04.2 \
 
+install_redis_dependency() {
+  echo "安装 Redis 依赖..."
+
+  local script_path="./scripts/thirdpartyLib/redis.sh"
+
+  if [ ! -x "$script_path" ]; then
+    echo "赋予 redis.sh 执行权限..."
+    chmod +x "$script_path"
+  fi
+
+  if ! "$script_path"; then
+    echo "redis.sh 执行失败，请检查脚本内容！"
+    exit 1
+  fi
+}
+
+install_redis_dependency
+
 echo "所有依赖安装完成！"

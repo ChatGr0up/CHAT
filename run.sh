@@ -48,6 +48,7 @@ export LIB_PATH="$CHAT_ROOT_DIR/build/lib"
 export BUILD_TYPE="$CHAT_ROOT_DIR"
 export GLOBAL_REST_CONFIG_PATH="$GLOBAL_CONFIG_PATH"
 export SSL_PEM_PATH="$HOME"
+export REDIS_CONFIG_PATH="$GLOBAL_CONFIG_PATH"
 
 # ----------- 渲染 Drogon 配置 -----------
 TEMPLATE_CONFIG="$GLOBAL_CONFIG_PATH/drogon_config_template.json"

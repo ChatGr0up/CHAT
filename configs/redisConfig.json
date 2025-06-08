@@ -1,0 +1,34 @@
+{
+  "default": {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "password": "your_password",
+    "db": 0,
+    "timeout_ms": 2000,
+    "keep_alive": true,
+    "ssl": false,
+    "pool": {
+      "size": 10,
+      "wait_timeout_ms": 100
+    }
+  },
+  "secure": {
+    "host": "redis.secure.internal",
+    "port": 6380,
+    "password": "your_secure_password",
+    "db": 1,
+    "timeout_ms": 3000,
+    "keep_alive": true,
+    "ssl": true,
+    "tls": {
+      "client_cert": "/etc/ssl/client.crt",
+      "client_key": "/etc/ssl/client.key",
+      "ca_cert": "/etc/ssl/ca.crt",
+      "sni": "redis.internal"
+    },
+    "pool": {
+      "size": 20,
+      "wait_timeout_ms": 500
+    }
+  }
+}

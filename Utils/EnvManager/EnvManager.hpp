@@ -20,6 +20,8 @@ public:
     std::string getLogPath();
 
     std::string getRestServiceConfigPath();
+
+    std::string getRedisConfigPath();
     
 private:
     EnvManager() = default;

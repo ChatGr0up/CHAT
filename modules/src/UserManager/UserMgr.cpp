@@ -122,7 +122,7 @@ JsonValue UserMgr::sendRegisterEmailVerifyCode(const JsonValue& req)
 
 bool UserMgr::isValidEmail(const std::string& email)
 {
-    const std::regex pattern(R"((\w+)(\.\w+)*@(\w+)(\.\w+)+)");
+    const std::regex pattern(R"(^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$)");
     return std::regex_match(email, pattern);
 }
 

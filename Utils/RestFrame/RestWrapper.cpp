@@ -102,6 +102,15 @@ bool RestWrapper::registerHandler(const std::string& methodName, JsonHandler han
     }
     auto lambda = [handler](const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
         TRACE("lambda of rest", "request path is " + req->getPath() + ", now call the handler!");
+        if (req->method() == drogon::HttpMethod::Options) {
+            auto resp = drogon::HttpResponse::newHttpResponse();
+            resp->setStatusCode(drogon::k200OK);
+            resp->addHeader("Access-Control-Allow-Origin", "*");
+            resp->addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            resp->addHeader("Access-Control-Allow-Headers", "Content-Type");
+            callback(resp);
+            return;
+        }
         try {
             JsonValue jsonResponse = handler(*req->jsonObject());
             auto httpResponse = drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
@@ -133,7 +142,9 @@ std::vector<HttpMethod> RestWrapper::parseHttpMethod(const std::string& methodSt
     std::stringstream ss(methodStr);
     std::string singleMethod;
     static std::map<std::string, HttpMethod> strToEnum = {{"GET", drogon::HttpMethod::Get}, 
-        {"POST", drogon::HttpMethod::Post}};
+        {"POST", drogon::HttpMethod::Post}, {"OPTIONS", drogon::HttpMethod::Options}, 
+        {"PUT", drogon::HttpMethod::Put}, {"DELETE", drogon::HttpMethod::Delete}, 
+        {"PATCH", drogon::HttpMethod::Patch}, {"HEAD", drogon::HttpMethod::Head}};
     while (std::getline(ss, singleMethod, ',')) {
         if (strToEnum.find(singleMethod) == strToEnum.end()) {
             ERROR("RestWrapper::parseHttpMethod", "fatal error! check your RestRoutes.json, http method invalid");

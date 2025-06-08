@@ -47,4 +47,13 @@ std::string EnvManager::getRestServiceConfigPath()
     }
     return envStr;
 }
+
+std::string EnvManager::getRedisConfigPath()
+{
+    std::string envStr(std::getenv("REDIS_CONFIG_PATH"));
+    if (envStr.empty()) {
+        std::cerr << "fatal error!" << std::endl;
+    }
+    return envStr;
+}
 }

@@ -23,7 +23,7 @@ void ChatCppRestService::init()
     TRACE("ChatCppRestService::init", "ChatCppRestService::init is called");
     registerHandler("ChatCppRestService", "GET", std::bind(&ChatCppRestService::testFunc, this, std::placeholders::_1), "/testFunc");
     registerHandler("ChatCppRestService", "POST", std::bind(&ChatCppRestService::userManagement, this, std::placeholders::_1), "/v1/usermanagement");
-    registerHandler("ChatCppRestService", "POST", std::bind(&ChatCppRestService::sendRegisterEmailVerifyCode, this, std::placeholders::_1), "/v1/sendRegisterEmailVerifyCode");
+    registerHandler("ChatCppRestService", "POST,OPTIONS", std::bind(&ChatCppRestService::sendRegisterEmailVerifyCode, this, std::placeholders::_1), "/v1/sendRegisterEmailVerifyCode");
     startRestService();
 }
 
