@@ -1,0 +1,3 @@
+[submodule "thirdPartyDepends"]
+	path = thirdPartyDepends
+	url = git@github.com:ChatGr0up/thirdPartyDepends.git

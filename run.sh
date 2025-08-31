@@ -49,6 +49,7 @@ export BUILD_TYPE="$CHAT_ROOT_DIR"
 export GLOBAL_REST_CONFIG_PATH="$GLOBAL_CONFIG_PATH"
 export SSL_PEM_PATH="$HOME"
 export REDIS_CONFIG_PATH="$GLOBAL_CONFIG_PATH"
+export LD_LIBRARY_PATH=/home/liu/code/CHAT/build/lib:/home/liu/code/CHAT/thirdPartyDepends/lib:$LD_LIBRARY_PATH
 
 # ----------- 渲染 Drogon 配置 -----------
 TEMPLATE_CONFIG="$GLOBAL_CONFIG_PATH/drogon_config_template.json"
@@ -67,7 +68,7 @@ log "BUILD_TYPE=$BUILD_TYPE"
 
 # ----------- 杀死旧的 MicroService -----------
 log "杀死旧 MicroService..."
-pids=$(pgrep -f "./build/main/main" || true)
+pids=$(pgrep -f "./build/main/chat" || true)
 if [[ -n "$pids" ]]; then
     echo "$pids" | xargs kill -9
     log "已杀死进程: $pids"
@@ -80,15 +81,15 @@ log "启动新的 MicroService..."
 case "$DEBUG_MODE" in
     strace)
         log "[DEBUG] 使用 strace 启动"
-        strace -o "$LOG_DIR/strace_output.log" ./build/main/main > "$LOG_DIR/main.log" 2>&1 &
+        strace -o "$LOG_DIR/strace_output.log" ./build/main/chat > "$LOG_DIR/main.log" 2>&1 &
         ;;
     gdb)
         log "[DEBUG] 使用 gdb 启动"
-        gdb --args ./build/main/main
+        gdb --args ./build/main/chat
         ;;
     *)
         log "[RELEASE] 使用 nohup 启动"
-        nohup ./build/main/main > "$LOG_DIR/main.log" 2>&1 &
+        nohup ./build/main/chat > "$LOG_DIR/main.log" 2>&1 &
         ;;
 esac
 
